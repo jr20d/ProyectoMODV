@@ -1,2 +1,3 @@
 #Omitir variable de entorno
-**/.env
+/ProyectoModV/.env
+.env
