@@ -11,6 +11,7 @@ namespace ProyectoModV.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "ApiMarcas")]
     public class MarcasController : ControllerBase
     {
         private readonly IMarcaRepository marcaRepository;

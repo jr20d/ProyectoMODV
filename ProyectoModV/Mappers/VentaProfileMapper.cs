@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ProyectoModV.DTO.Productos;
 using ProyectoModV.DTO.Ventas;
 using ProyectoModV.Models;
 

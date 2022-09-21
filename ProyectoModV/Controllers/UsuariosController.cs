@@ -12,6 +12,7 @@ namespace ProyectoModV.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "ApiUsuarios")]
     public class UsuariosController : ControllerBase
     {
         private readonly IUsuarioRepository usuarioRepository;

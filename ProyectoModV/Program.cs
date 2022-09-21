@@ -50,7 +50,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     {
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("AA783gui28*=823+82.GFTYbjwdj")),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Secret").Value)),
         ValidateAudience = false,
         ValidateIssuer = false
     };
@@ -93,16 +93,119 @@ builder.Services.AddControllers(opt =>
     config.RegisterValidatorsFromAssemblyContaining<ActualizarStockValidator>();
 
     //Validación Ventas
-    config.RegisterValidatorsFromAssemblyContaining<AgregarVentaValidator>();
+    config.RegisterValidatorsFromAssemblyContaining<NuevaVentaValidator>();
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerExamples();
 builder.Services.AddSwaggerGen(opt =>
 {
-    opt.SwaggerDoc("v1", new OpenApiInfo { Title = "API Proyecto MOD-V", Description = "Backend Mercado Online", Version = "v1", Contact = new OpenApiContact {
-        Email = "ra1576012019@unab.edu.vs", Name = "UNAB", Url = new Uri("https://www.unab.edu.sv")
-    }, License = new OpenApiLicense { Name = "MIT License", Url = new Uri("https://opensource.org/licenses/MIT") } });
+    opt.SwaggerDoc("ApiAutenticacion", new OpenApiInfo
+    {
+        Title = "API Autenticación",
+        Description = "Backend Mercado Online",
+        Version = "v1",
+        Contact = new OpenApiContact
+        {
+            Email = "ra1576012019@unab.edu.vs",
+            Name = "UNAB",
+            Url = new Uri("https://www.unab.edu.sv")
+        },
+        License = new OpenApiLicense { Name = "MIT License", Url = new Uri("https://opensource.org/licenses/MIT") }
+    });
+    opt.SwaggerDoc("ApiMarcas", new OpenApiInfo
+    {
+        Title = "API Marcas",
+        Description = "Backend Mercado Online",
+        Version = "v1",
+        Contact = new OpenApiContact
+        {
+            Email = "ra1576012019@unab.edu.vs",
+            Name = "UNAB",
+            Url = new Uri("https://www.unab.edu.sv")
+        },
+        License = new OpenApiLicense { Name = "MIT License", Url = new Uri("https://opensource.org/licenses/MIT") }
+    });
+    opt.SwaggerDoc("ApiProductos", new OpenApiInfo
+    {
+        Title = "API Productos",
+        Description = "Backend Mercado Online",
+        Version = "v1",
+        Contact = new OpenApiContact
+        {
+            Email = "ra1576012019@unab.edu.vs",
+            Name = "UNAB",
+            Url = new Uri("https://www.unab.edu.sv")
+        },
+        License = new OpenApiLicense { Name = "MIT License", Url = new Uri("https://opensource.org/licenses/MIT") }
+    });
+
+    opt.SwaggerDoc("ApiTipoProducto", new OpenApiInfo
+    {
+        Title = "API Tipo Producto",
+        Description = "Backend Mercado Online",
+        Version = "v1",
+        Contact = new OpenApiContact
+        {
+            Email = "ra1576012019@unab.edu.vs",
+            Name = "UNAB",
+            Url = new Uri("https://www.unab.edu.sv")
+        },
+        License = new OpenApiLicense { Name = "MIT License", Url = new Uri("https://opensource.org/licenses/MIT") }
+    });
+    opt.SwaggerDoc("ApiUploads", new OpenApiInfo
+    {
+        Title = "API Carga Archivos",
+        Description = "Backend Mercado Online",
+        Version = "v1",
+        Contact = new OpenApiContact
+        {
+            Email = "ra1576012019@unab.edu.vs",
+            Name = "UNAB",
+            Url = new Uri("https://www.unab.edu.sv")
+        },
+        License = new OpenApiLicense { Name = "MIT License", Url = new Uri("https://opensource.org/licenses/MIT") }
+    });
+    opt.SwaggerDoc("ApiUsuarios", new OpenApiInfo
+    {
+        Title = "API Usuarios",
+        Description = "Backend Mercado Online",
+        Version = "v1",
+        Contact = new OpenApiContact
+        {
+            Email = "ra1576012019@unab.edu.vs",
+            Name = "UNAB",
+            Url = new Uri("https://www.unab.edu.sv")
+        },
+        License = new OpenApiLicense { Name = "MIT License", Url = new Uri("https://opensource.org/licenses/MIT") }
+    });
+    opt.SwaggerDoc("ApiVendedores", new OpenApiInfo
+    {
+        Title = "API Vendedores",
+        Description = "Backend Mercado Online",
+        Version = "v1",
+        Contact = new OpenApiContact
+        {
+            Email = "ra1576012019@unab.edu.vs",
+            Name = "UNAB",
+            Url = new Uri("https://www.unab.edu.sv")
+        },
+        License = new OpenApiLicense { Name = "MIT License", Url = new Uri("https://opensource.org/licenses/MIT") }
+    });
+    opt.SwaggerDoc("ApiVentas", new OpenApiInfo
+    {
+        Title = "API Ventas",
+        Description = "Backend Mercado Online",
+        Version = "v1",
+        Contact = new OpenApiContact
+        {
+            Email = "ra1576012019@unab.edu.vs",
+            Name = "UNAB",
+            Url = new Uri("https://www.unab.edu.sv")
+        },
+        License = new OpenApiLicense { Name = "MIT License", Url = new Uri("https://opensource.org/licenses/MIT") }
+    });
+
     opt.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -112,22 +215,6 @@ builder.Services.AddSwaggerGen(opt =>
         Scheme = "Bearer"
     });
     opt.EnableAnnotations();
-    /*opt.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Name = "Bearer",
-                In = ParameterLocation.Header,
-                Reference = new OpenApiReference
-                {
-                    Id = "Bearer",
-                    Type = ReferenceType.SecurityScheme
-                }
-            },
-            new List<string>()
-        }
-    });*/
     opt.OperationFilter<FiltroAutorizacionEndpointsSwagger>();
 });
 
@@ -140,7 +227,17 @@ if (app.Environment.IsDevelopment())
     //app.UseSwaggerUI();
 }
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(opt =>
+{
+    opt.SwaggerEndpoint("/swagger/ApiAutenticacion/swagger.json", "API Autenticación");
+    opt.SwaggerEndpoint("/swagger/ApiMarcas/swagger.json", "API Marcas");
+    opt.SwaggerEndpoint("/swagger/ApiProductos/swagger.json", "API Productos");
+    opt.SwaggerEndpoint("/swagger/ApiTipoProducto/swagger.json", "API Tipo Producto");
+    opt.SwaggerEndpoint("/swagger/ApiUploads/swagger.json", "API Carga Archivos");
+    opt.SwaggerEndpoint("/swagger/ApiUsuarios/swagger.json", "API Usuarios");
+    opt.SwaggerEndpoint("/swagger/ApiVendedores/swagger.json", "API Vendedores");
+    opt.SwaggerEndpoint("/swagger/ApiVentas/swagger.json", "API Ventas");
+});
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

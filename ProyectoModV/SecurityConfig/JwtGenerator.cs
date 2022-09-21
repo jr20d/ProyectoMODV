@@ -9,9 +9,11 @@ namespace ProyectoModV.SecurityConfig
     public class JwtGenerator : IJwtGenerator
     {
         private readonly IHttpContextAccessor contextAccessor;
-        public JwtGenerator(IHttpContextAccessor contextAccessor)
+        private readonly IConfiguration configuration;
+        public JwtGenerator(IHttpContextAccessor contextAccessor, IConfiguration configuration)
         {
             this.contextAccessor = contextAccessor;
+            this.configuration = configuration;
         }
 
         public DataUsuarioToken GetUsuarioActual()
@@ -41,7 +43,7 @@ namespace ProyectoModV.SecurityConfig
                 claims.Add(new Claim(ClaimTypes.Role, rol));
             });
 
-            var clave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("AA783gui28*=823+82.GFTYbjwdj"));
+            var clave = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration.GetSection("Secret").Value));
             var credenciales = new SigningCredentials(clave, SecurityAlgorithms.HmacSha512Signature);
 
             return new JwtSecurityTokenHandler()

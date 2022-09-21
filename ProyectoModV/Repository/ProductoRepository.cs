@@ -71,7 +71,8 @@ namespace ProyectoModV.Repository
         {
             return await context.Productos.AsQueryable()
                 .Where(p => p.ProductoId == id)
-                .Select(p => p != null ? new ProductoIdNombre { ProductoId = p.ProductoId, Nombre = p.Nombre, Cantidad = p.Cantidad } :
+                .Select(p => p != null ? new ProductoIdNombre { ProductoId = p.ProductoId, Nombre = p.Nombre, Cantidad = p.Cantidad,
+                Precio = p.Precio, Descuento = p.Descuento } :
                 null)
                 .FirstOrDefaultAsync();
         }

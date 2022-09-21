@@ -12,6 +12,7 @@ namespace ProyectoModV.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "ApiProductos")]
     public class ProductosController : ControllerBase
     {
         private readonly IProductoRepository productoRepository;

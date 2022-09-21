@@ -10,6 +10,7 @@ namespace ProyectoModV.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "ApiUploads")]
     public class UploadsController : ControllerBase
     {
         private readonly ICargaArchivo cargaArchivo;

@@ -18,15 +18,15 @@ namespace ProyectoModV.SecurityConfig
             }
 
             operation.Security = new List<OpenApiSecurityRequirement>
-        {
-            new OpenApiSecurityRequirement
             {
-                [new OpenApiSecurityScheme
+                new OpenApiSecurityRequirement
                 {
-                    Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
-                }] = new List<string>()
-            }
-        };
+                    [new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                    }] = new List<string>()
+                }
+            };
         }
     }
 }

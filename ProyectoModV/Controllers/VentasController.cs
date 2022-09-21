@@ -14,6 +14,7 @@ namespace ProyectoModV.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiExplorerSettings(GroupName = "ApiVentas")]
     public class VentasController : ControllerBase
     {
         private readonly IVentaRepository ventaRepository;
@@ -90,7 +91,7 @@ namespace ProyectoModV.Controllers
         [ProducesResponseType(409, Type = typeof(List<RespuestaBase>))]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
-        public async Task<IActionResult> CreateVenta([FromBody()] AgregarVentaDto ventaDto)
+        public async Task<IActionResult> CreateVenta([FromBody()] NuevaVentaDto ventaDto)
         {
             var idUsuarioSesion = jwtGenerator.GetIdUsuarioActual();
             if (ventaDto.Detalle.Count == 0)
@@ -99,25 +100,29 @@ namespace ProyectoModV.Controllers
             }
 
             List<RespuestaBase> respuestas = new();
-            List<AgregarVentaDetalleDto> detalle = new();
+            //Ordenar detalle con ID's de productos y cantidades
+            List<DetalleNuevaVenta> detalleIds = new();
+            //Listado de para realizar calculo
+            //Objeto para almacenar valores en la base de datos
+            List<VentaDetalle> ventaDetalle = new();
+
+            Venta venta = new();
 
             ventaDto.Detalle.OrderBy(d => d.ProductoId);
 
             ventaDto.Detalle.ForEach(d =>
             {
-                if (detalle.Any(data => data.ProductoId == d.ProductoId))
+                if (detalleIds.Any(data => data.ProductoId == d.ProductoId))
                 {
-                    detalle[detalle.FindIndex(data => data.ProductoId == d.ProductoId)].Cantidad += d.Cantidad;
-                    detalle[detalle.FindIndex(data => data.ProductoId == d.ProductoId)].Descuento += d.Descuento;
-                    detalle[detalle.FindIndex(data => data.ProductoId == d.ProductoId)].Importe += d.Importe;
+                    detalleIds[detalleIds.FindIndex(data => data.ProductoId == d.ProductoId)].Cantidad += d.Cantidad;
                 }
                 else
                 {
-                    detalle.Add(d);
+                    detalleIds.Add(d);
                 }
             });
 
-            detalle.ForEach(d =>
+            detalleIds.ForEach(d =>
             {
                 var producto = productoRepository.GetIdAndNombreProducto(d.ProductoId).Result;
                 if (producto == null)
@@ -128,6 +133,18 @@ namespace ProyectoModV.Controllers
                 {
                     respuestas.Add(new RespuestaBase { Mensaje = $"La cantidad indicada del producto {producto.Nombre} supera la disponibilidad del mismo" });
                 }
+                else
+                {
+                    ventaDetalle.Add(new VentaDetalle
+                    {
+                        ProductoId = d.ProductoId,
+                        Cantidad = d.Cantidad,
+                        Precio = producto.Precio,
+                        Descuento = producto.Descuento,
+                        Importe = (producto.Precio * d.Cantidad) - (producto.Descuento * d.Cantidad)
+                    });
+                    venta.Total += (producto.Precio * d.Cantidad) - (producto.Descuento * d.Cantidad);
+                }
             });
 
             if (respuestas.Count > 0)
@@ -135,22 +152,22 @@ namespace ProyectoModV.Controllers
                 return Conflict(respuestas);
             }
 
-            var venta = mapper.Map<Venta>(ventaDto);
             venta.Referencia = Guid.NewGuid().ToString();
             venta.Fecha = DateTime.UtcNow.Date;
             venta.UsuarioId = idUsuarioSesion;
+            venta.Detalle = ventaDetalle;
 
             var url = "http://localhost:8080/api/pagos";
             var peticion = (HttpWebRequest)WebRequest.Create(url);
             var obj = new
             {
-                total = ventaDto.Total,
+                total = venta.Total,
                 tarjeta = new
                 {
                     numero = ventaDto.Numero,
                     mes = ventaDto.Mes,
                     year = ventaDto.Year,
-                    cvc = ventaDto.cvc
+                    cvc = ventaDto.Cvc
                 }
             };
 
@@ -177,7 +194,7 @@ namespace ProyectoModV.Controllers
                         }
                         using (StreamReader objReader = new StreamReader(strReader))
                         {
-                            string respuesta = JsonConvert.DeserializeObject<dynamic>(objReader.ReadToEnd()).Resultado;
+                            string respuesta = JsonConvert.DeserializeObject<dynamic>(objReader.ReadToEnd()).resultado ?? "";
                             if (respuesta.ToString() == "El pago ha sido realizado")
                             {
                                 return await ventaRepository.CreateVenta(venta) ?
