@@ -10,3 +10,5 @@
 * Uso de migraciones para generar la base de datos.
 * Carga de imágenes de usuarios (clientes y vendedores) y productos utilizando Cloudinary.
 * Consumo de API creada en Spring Boot para realizar el proceso de pago.
+
+> URL repositorio de la API de pagos (Spring Boot) -> https://github.com/jr20d/API-Pagos.git
